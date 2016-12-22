@@ -10,7 +10,7 @@ public class BoardTest
 	@Test
 	public void testGameEndVertical()
 	{
-		Board board = new Board(10);
+		Board board = new Board(5);
 
 		Referee referee = new Referee(board);
 
@@ -26,7 +26,7 @@ public class BoardTest
 	@Test
 	public void testGameEndHorizontal()
 	{
-		Board board = new Board(10);
+		Board board = new Board(5);
 
 		Referee referee = new Referee(board);
 
@@ -42,7 +42,7 @@ public class BoardTest
 	@Test
 	public void testGameEndDiagonal1()
 	{
-		Board board = new Board(10);
+		Board board = new Board(5);
 
 		Referee referee = new Referee(board);
 
@@ -58,7 +58,7 @@ public class BoardTest
 	@Test
 	public void testGameEndDiagonal2()
 	{
-		Board board = new Board(10);
+		Board board = new Board(5);
 
 		Referee referee = new Referee(board);
 
@@ -69,6 +69,20 @@ public class BoardTest
 			board.fill(new Coordinate(i, i), FieldValue.P1);
 		}
 		Assert.assertTrue(referee.isGameEnded());
+	}
+
+	@Test
+	public void testBorders()
+	{
+		Board board = new Board(20);
+		Referee referee = new Referee(board);
+
+		for (int i = 16; i < 20; i++)
+		{
+			board.fill(new Coordinate(i, 0), FieldValue.P1);
+		}
+
+		Assert.assertFalse(referee.isGameEnded());
 	}
 
 }
