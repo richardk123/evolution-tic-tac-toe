@@ -55,6 +55,10 @@ public class Game
 		}
 
 		render();
+		if (moveCount > 20)
+		{
+			renderGame();
+		}
 	}
 
 	private void render()
@@ -72,6 +76,25 @@ public class Game
 		}
 
 		System.out.println(String.format("player win: %s move count: %s", winner, referee.getMoveCount()));
+	}
+
+	private void renderGame()
+	{
+		System.out.println();
+
+		for (int y = 0; y < board.getSize(); y++)
+		{
+			for (int x = 0; x < board.getSize(); x++)
+			{
+				switch (board.getBoard()[y][x])
+				{
+					case -2 : System.out.print(" "); break;
+					case 1 : System.out.print("X"); break;
+					case 0 : System.out.print("O"); break;
+				}
+			}
+			System.out.println();
+		}
 	}
 
 	private void play(Player player, FieldValue value)

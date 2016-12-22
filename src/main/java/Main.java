@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,34 +19,50 @@ public class Main
 	public static void main(String[] args)
 	{
 		List<EvolutionPlayer> population = generateFirstPopulation();
-
 		Map<EvolutionPlayer, Integer> winStats = battleAllVsAll(population);
 
-		population = mutatePopulation(winStats);
-		winStats = battleAllVsAll(population);
+		evolve(winStats);
 
-		population = mutatePopulation(winStats);
-		winStats = battleAllVsAll(population);
+	}
 
-		population = mutatePopulation(winStats);
-		winStats = battleAllVsAll(population);
-
-		population = mutatePopulation(winStats);
-		winStats = battleAllVsAll(population);
-
+	private static Map<EvolutionPlayer, Integer> evolve(Map<EvolutionPlayer, Integer> winStats)
+	{
+		List<EvolutionPlayer> population = mutatePopulation(winStats);
+		return evolve(battleAllVsAll(population));
 	}
 
 	private static List<EvolutionPlayer> mutatePopulation(Map<EvolutionPlayer, Integer> winMap)
 	{
-		List<EvolutionPlayer> mutatedPlayers = new ArrayList<>();
+		final List<EvolutionPlayer> mutatedPlayers = new ArrayList<>();
+
+		final int sumOfWins = winMap.values().stream()
+				.mapToInt(i -> i.intValue())
+				.sum();
 
 		winMap.forEach((p, winCount) ->
 		{
-			for (int i = 0; i < winCount; i++)
+			int numberOfChildrens = Math.round(((float)winCount / sumOfWins) * PLAYER_COUNT);
+
+			for (int i = 0; i < numberOfChildrens; i++)
 			{
 				mutatedPlayers.add(p.mutate(p.getName() + i));
 			}
 		});
+
+		List<EvolutionPlayer> orderedPlayers = new ArrayList<>(winMap.keySet());
+		Collections.reverse(orderedPlayers);
+
+		EvolutionPlayer bestPlayer = orderedPlayers.get(0);
+
+		int playerToAdd = 10 - mutatedPlayers.size();
+
+		if (mutatedPlayers.size() < 10)
+		{
+			for (int i = 0; i < playerToAdd ; i++)
+			{
+				mutatedPlayers.add(bestPlayer.mutate(bestPlayer.getName() + "x" + i));
+			}
+		}
 
 		return mutatedPlayers;
 	}
@@ -67,9 +84,9 @@ public class Main
 		Map<EvolutionPlayer, Integer> winMap = new ConcurrentHashMap<>();
 		ExecutorService executor = Executors.newFixedThreadPool(5);
 
-		for (int i = 0; i < PLAYER_COUNT; i++)
+		for (int i = 0; i < players.size(); i++)
 		{
-			for (int j = i; j < PLAYER_COUNT; j++)
+			for (int j = i; j < players.size(); j++)
 			{
 				if (i != j)
 				{
@@ -100,6 +117,8 @@ public class Main
 		{
 			System.out.println(String.format("player: %s win %s number of genes: %s", p.getName(), win, p.getNumberOfGenes()));
 		});
+		System.out.println("");
+		System.out.println("");
 
 		return sortedWinMap;
 	}
