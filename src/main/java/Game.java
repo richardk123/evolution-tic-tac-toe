@@ -75,7 +75,7 @@ public class Game
 			winner = player2.getName();
 		}
 
-		System.out.println(String.format("player win: %s move count: %s", winner, referee.getMoveCount()));
+//		System.out.println(String.format("player win: %s move count: %s", winner, referee.getMoveCount()));
 	}
 
 	private void renderGame()
@@ -88,13 +88,14 @@ public class Game
 			{
 				switch (board.getBoard()[y][x])
 				{
-					case -2 : System.out.print(" "); break;
-					case 1 : System.out.print("X"); break;
-					case 0 : System.out.print("O"); break;
+					case -2 : System.out.print("_"); break;
+					case 1 :  System.out.print("X"); break;
+					case 0 :  System.out.print("O"); break;
 				}
 			}
 			System.out.println();
 		}
+		System.out.println();
 	}
 
 	private void play(Player player, FieldValue value)

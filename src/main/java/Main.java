@@ -19,16 +19,17 @@ public class Main
 	public static void main(String[] args)
 	{
 		List<EvolutionPlayer> population = generateFirstPopulation();
-		Map<EvolutionPlayer, Integer> winStats = battleAllVsAll(population);
+		Map<EvolutionPlayer, Integer> winStats = battleAllVsAll(population, 0);
 
-		evolve(winStats);
+		evolve(winStats, 1);
 
 	}
 
-	private static Map<EvolutionPlayer, Integer> evolve(Map<EvolutionPlayer, Integer> winStats)
+	private static Map<EvolutionPlayer, Integer> evolve(Map<EvolutionPlayer, Integer> winStats,
+														int generation)
 	{
 		List<EvolutionPlayer> population = mutatePopulation(winStats);
-		return evolve(battleAllVsAll(population));
+		return evolve(battleAllVsAll(population, generation), generation + 1);
 	}
 
 	private static List<EvolutionPlayer> mutatePopulation(Map<EvolutionPlayer, Integer> winMap)
@@ -36,16 +37,16 @@ public class Main
 		final List<EvolutionPlayer> mutatedPlayers = new ArrayList<>();
 
 		final int sumOfWins = winMap.values().stream()
-				.mapToInt(i -> i.intValue())
+				.mapToInt(i -> i)
 				.sum();
 
 		winMap.forEach((p, winCount) ->
 		{
-			int numberOfChildrens = Math.round(((float)winCount / sumOfWins) * PLAYER_COUNT);
+			int numberOfChildren = Math.round(((float)winCount / sumOfWins) * PLAYER_COUNT);
 
-			for (int i = 0; i < numberOfChildrens; i++)
+			for (int i = 0; i < numberOfChildren; i++)
 			{
-				mutatedPlayers.add(p.mutate(p.getName() + i));
+				mutatedPlayers.add(p.mutate(p.getName()));
 			}
 		});
 
@@ -60,7 +61,7 @@ public class Main
 		{
 			for (int i = 0; i < playerToAdd ; i++)
 			{
-				mutatedPlayers.add(bestPlayer.mutate(bestPlayer.getName() + "x" + i));
+				mutatedPlayers.add(bestPlayer.mutate(bestPlayer.getName()));
 			}
 		}
 
@@ -79,7 +80,8 @@ public class Main
 		return players;
 	}
 
-	private static Map<EvolutionPlayer, Integer> battleAllVsAll(List<EvolutionPlayer> players)
+	private static Map<EvolutionPlayer, Integer> battleAllVsAll(List<EvolutionPlayer> players,
+																int generation)
 	{
 		Map<EvolutionPlayer, Integer> winMap = new ConcurrentHashMap<>();
 		ExecutorService executor = Executors.newFixedThreadPool(5);
@@ -101,6 +103,12 @@ public class Main
 		{
 		}
 
+		// add random one when nobody wins
+		if (winMap.isEmpty())
+		{
+			winMap.put(players.get(0), 10);
+		}
+
 		LinkedHashMap<EvolutionPlayer, Integer> sortedWinMap = winMap.entrySet()
 				.stream()
 				.sorted(Map.Entry.comparingByValue())
@@ -112,7 +120,7 @@ public class Main
 				));
 
 		System.out.println("");
-		System.out.println("--=========== RESULTS ===========---");
+		System.out.println(String.format("--=========== GENERATION %s ===========---", generation));
 		sortedWinMap.forEach((p, win) ->
 		{
 			System.out.println(String.format("player: %s win %s number of genes: %s", p.getName(), win, p.getNumberOfGenes()));
