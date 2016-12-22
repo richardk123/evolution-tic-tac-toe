@@ -62,7 +62,7 @@ public class Board
 			for (int x = 0; x < size; x ++)
 			{
 				// skip edges
-				if (x < size - patternWidth && y < size - patternHeight)
+				if (x <= size - patternWidth && y <= size - patternHeight)
 				{
 					BoardPattern boardPattern = new BoardPattern(x, y, patternWidth, patternHeight);
 					boardPatterns.add(boardPattern);

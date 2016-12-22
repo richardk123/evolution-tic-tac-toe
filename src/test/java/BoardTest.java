@@ -26,7 +26,7 @@ public class BoardTest
 	@Test
 	public void testGameEndHorizontal()
 	{
-		Board board = new Board(5);
+		Board board = new Board(10);
 
 		Referee referee = new Referee(board);
 
@@ -42,7 +42,7 @@ public class BoardTest
 	@Test
 	public void testGameEndDiagonal1()
 	{
-		Board board = new Board(5);
+		Board board = new Board(10);
 
 		Referee referee = new Referee(board);
 
@@ -58,7 +58,7 @@ public class BoardTest
 	@Test
 	public void testGameEndDiagonal2()
 	{
-		Board board = new Board(5);
+		Board board = new Board(10);
 
 		Referee referee = new Referee(board);
 
