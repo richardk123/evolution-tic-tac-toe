@@ -54,10 +54,10 @@ public class Game
 			nextTurnPlayer1 = !nextTurnPlayer1;
 		}
 
-		render();
 		if (moveCount > 20)
 		{
-			renderGame();
+//			render();
+//			renderGame();
 		}
 	}
 
@@ -75,13 +75,11 @@ public class Game
 			winner = player2.getName();
 		}
 
-//		System.out.println(String.format("player win: %s move count: %s", winner, referee.getMoveCount()));
+		System.out.println(String.format("player win: %s move count: %s", winner, referee.getMoveCount()));
 	}
 
 	private void renderGame()
 	{
-		System.out.println();
-
 		for (int y = 0; y < board.getSize(); y++)
 		{
 			for (int x = 0; x < board.getSize(); x++)

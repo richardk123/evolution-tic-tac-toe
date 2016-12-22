@@ -169,13 +169,6 @@ public class EvolutionPlayer implements Player
 
 				for (int x = 0; x < actualGeneSizeX; x ++)
 				{
-					int random = new Random().nextInt(4) - 2;
-
-					if (random == -1)
-					{
-						random = -2;
-					}
-
 					rowData.add(evolutionUtils.chooseRandomFromArray(
 							FieldValue.EMPTY.getValue(),
 							FieldValue.P1.getValue(),
