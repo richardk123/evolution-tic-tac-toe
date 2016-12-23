@@ -126,7 +126,12 @@ public class EvolutionPlayer implements Player
 		return name;
 	}
 
-	private class Gene
+	public List<Gene> getGenes()
+	{
+		return genes;
+	}
+
+	public class Gene
 	{
 
 		private final Pattern pattern;
@@ -151,7 +156,7 @@ public class EvolutionPlayer implements Player
 		private Gene()
 		{
 			int maxSize = evolutionUtils.getNewGeneMaxSize();
-			int minSize = 2;
+			int minSize = 1;
 
 			int actualGeneSizeX = evolutionUtils.getLinearBiasedRandomNumber(minSize, maxSize);
 			int actualGeneSizeY = evolutionUtils.getLinearBiasedRandomNumber(minSize, maxSize);

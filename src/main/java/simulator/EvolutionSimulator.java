@@ -19,7 +19,7 @@ import util.XmlUtils;
  */
 public class EvolutionSimulator implements Runnable
 {
-	public static final Integer PLAYER_COUNT = 10;
+	public static final Integer PLAYER_COUNT = 20;
 
 	@Override
 	public void run()
@@ -153,7 +153,15 @@ public class EvolutionSimulator implements Runnable
 
 		sortedWinMap.forEach((p, win) ->
 		{
-			System.out.println(String.format("player: %s, win %s times, number of genes: %s", p.getName(), win, p.getNumberOfGenes()));
+			String areas = p.getGenes().stream()
+					.map(g -> g.getPattern().getHeight() * g.getPattern().getWidth())
+					.map(Object::toString)
+					.collect(Collectors.joining(", "));
+
+			System.out.println(
+					String.format(
+							"player: %s, win %s times, number of genes: %s, gene size: %s",
+							p.getName(), win, p.getNumberOfGenes(), areas));
 		});
 
 		System.out.println();
