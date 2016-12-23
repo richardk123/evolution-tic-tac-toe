@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import player.EvolutionPlayer;
@@ -20,15 +21,16 @@ import util.XmlUtils;
 public class EvolutionSimulator implements Runnable
 {
 	public static final Integer PLAYER_COUNT = 20;
+	private AtomicInteger seq = new AtomicInteger();
 
 	@Override
 	public void run()
 	{
 		// generate first population
-		List<EvolutionPlayer> population = generatePopulation(10);
+		List<EvolutionPlayer> population = generatePopulation(10, 0);
 
 		// lets evolution begin
-		evolve(population, 0);
+		evolve(population, 1);
 	}
 
 	private Map<EvolutionPlayer, Integer> evolve(@Nonnull final List<EvolutionPlayer> population,
@@ -37,17 +39,15 @@ public class EvolutionSimulator implements Runnable
 		// fight all vs all
 		Map<EvolutionPlayer, Integer> winStats = battleAllVsAll(population, generation);
 
-		List<EvolutionPlayer> mutatedPopulation = mutatePopulation(population, winStats);
-
-		// persist as xml
-		population.forEach(XmlUtils::savePlayer);
+		List<EvolutionPlayer> mutatedPopulation = mutatePopulation(population, winStats, generation);
 
 		return evolve(mutatedPopulation, generation + 1);
 	}
 
 
 	private List<EvolutionPlayer> mutatePopulation(@Nonnull final List<EvolutionPlayer> population,
-												   @Nonnull final Map<EvolutionPlayer, Integer> winMap)
+												   @Nonnull final Map<EvolutionPlayer, Integer> winMap,
+												   int generation)
 	{
 		final List<EvolutionPlayer> mutatedPlayers = new ArrayList<>();
 
@@ -59,11 +59,11 @@ public class EvolutionSimulator implements Runnable
 			// remove last individual from end
 			newGeneration.remove(newGeneration.size() - 1);
 			// generate new individual, append at the end
-			newGeneration.addAll(generatePopulation(1));
+			newGeneration.addAll(generatePopulation(1, generation));
 
 			// mutate them
 			return newGeneration.stream()
-					.map(p -> p.mutate(p.getName()))
+					.map(p -> p.mutate(generatePlayerName(generation)))
 					.collect(Collectors.toList());
 		}
 
@@ -77,7 +77,7 @@ public class EvolutionSimulator implements Runnable
 
 			for (int i = 0; i < numberOfChildren; i++)
 			{
-				mutatedPlayers.add(p.mutate(p.getName()));
+				mutatedPlayers.add(p.mutate(generatePlayerName(generation)));
 			}
 		});
 
@@ -86,26 +86,34 @@ public class EvolutionSimulator implements Runnable
 
 		EvolutionPlayer bestPlayer = orderedPlayers.get(0);
 
+		// persist as xml
+		XmlUtils.savePlayer(bestPlayer);
+
 		int playerToAdd = PLAYER_COUNT - mutatedPlayers.size();
 
 		if (mutatedPlayers.size() < PLAYER_COUNT)
 		{
 			for (int i = 0; i < playerToAdd ; i++)
 			{
-				mutatedPlayers.add(bestPlayer.mutate(bestPlayer.getName()));
+				mutatedPlayers.add(bestPlayer.mutate(generatePlayerName(generation)));
 			}
 		}
 
 		return mutatedPlayers;
 	}
 
-	private List<EvolutionPlayer> generatePopulation(int count)
+	private String generatePlayerName(int generation)
+	{
+		return "p#" + generation + "." + seq.incrementAndGet();
+	}
+
+	private List<EvolutionPlayer> generatePopulation(int count, int generation)
 	{
 		List<EvolutionPlayer> players = new ArrayList<>();
 
 		for (int i = 0; i < count; i++)
 		{
-			players.add(new EvolutionPlayer("p" + i));
+			players.add(new EvolutionPlayer(generatePlayerName(generation)));
 		}
 
 		return players;
@@ -154,8 +162,7 @@ public class EvolutionSimulator implements Runnable
 		sortedWinMap.forEach((p, win) ->
 		{
 			String areas = p.getGenes().stream()
-					.map(g -> g.getPattern().getHeight() * g.getPattern().getWidth())
-					.map(Object::toString)
+					.map(g -> g.getPattern().getWidth() + "*" + g.getPattern().getHeight())
 					.collect(Collectors.joining(", "));
 
 			System.out.println(
