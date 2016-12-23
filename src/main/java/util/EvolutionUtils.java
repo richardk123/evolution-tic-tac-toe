@@ -83,4 +83,10 @@ public class EvolutionUtils
 		return array[new Random().nextInt(array.length)];
 	}
 
+	public int getLinearBiasedRandomNumber(int min, int max)
+	{
+		double randomDouble = new Random().nextDouble();
+		return (int) Math.floor(min + (max + 1 - min) * (Math.pow(randomDouble, 2)));
+	}
+
 }

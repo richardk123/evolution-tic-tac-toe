@@ -60,11 +60,11 @@ public class Game
 			nextTurnPlayer1 = !nextTurnPlayer1;
 		}
 
-		if (moveCount > 20)
-		{
-			render();
-			renderGame();
-		}
+//		if (moveCount > 20)
+//		{
+//			render();
+//			renderGame();
+//		}
 	}
 
 	private void render()

@@ -150,12 +150,15 @@ public class EvolutionPlayer implements Player
 		 */
 		private Gene()
 		{
-			int actualGeneSizeX = 1 + (int) (Math.random() * evolutionUtils.getNewGeneMaxSize() - 1);
-			int actualGeneSizeY = 1 + (int) (Math.random() * evolutionUtils.getNewGeneMaxSize() - 1);
+			int maxSize = evolutionUtils.getNewGeneMaxSize();
+			int minSize = 2;
+
+			int actualGeneSizeX = evolutionUtils.getLinearBiasedRandomNumber(minSize, maxSize);
+			int actualGeneSizeY = evolutionUtils.getLinearBiasedRandomNumber(minSize, maxSize);
 
 			if (actualGeneSizeX == 1 && actualGeneSizeY == 1)
 			{
-				if (Math.random() < 0.5)
+				if (new Random().nextBoolean())
 				{
 					actualGeneSizeX += 1;
 				}
@@ -231,8 +234,11 @@ public class EvolutionPlayer implements Player
 
 			for (int i = 0; i < newPatternData.length(); i++)
 			{
+				char currentVal = newPatternData.charAt(i);
+
 				// chance to change gene
-				if (evolutionUtils.isChangeAllowed(evolutionUtils.getChangeChangeGenePattern()))
+				if (currentVal != FieldType.ROW_SEPARATOR.getCharValue() &&
+						evolutionUtils.isChangeAllowed(evolutionUtils.getChangeChangeGenePattern()))
 				{
 					char val = evolutionUtils.chooseRandomFromArray(
 							FieldType.EMPTY.getValue(),

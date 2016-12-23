@@ -47,4 +47,9 @@ public enum FieldType
 	};
 
 	public abstract String getValue();
+
+	public char getCharValue()
+	{
+		return new StringBuilder(getValue()).charAt(0);
+	}
 }
