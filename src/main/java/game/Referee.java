@@ -1,3 +1,5 @@
+package game;
+
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,29 +18,31 @@ public class Referee
 	{
 		this.board = board;
 
-		Pattern horizontal = new Pattern();
-		horizontal.addRow(1);
-		horizontal.addRow(1);
-		horizontal.addRow(1);
-		horizontal.addRow(1);
-		horizontal.addRow(1);
+		Pattern horizontal = new Pattern("XXXXX");
 
-		Pattern vertical = new Pattern();
-		vertical.addRow(1, 1, 1, 1, 1);
+		Pattern vertical = new Pattern(
+				"X" + "\n" +
+				"X" + "\n" +
+				"X" + "\n" +
+				"X" + "\n" +
+				"X" + "\n"
+		);
 
-		Pattern diagonal1 = new Pattern();
-		diagonal1.addRow(-1, -1, -1, -1, 1);
-		diagonal1.addRow(-1, -1, -1, 1, -1);
-		diagonal1.addRow(-1, -1, 1, -1, -1);
-		diagonal1.addRow(-1, 1, -1, -1, -1);
-		diagonal1.addRow(1, -1, -1, -1, -1);
+		Pattern diagonal1 = new Pattern(
+				"????X" + "\n" +
+				"???X?" + "\n" +
+				"??X??" + "\n" +
+				"?X???" + "\n" +
+				"X????" + "\n"
+		);
 
-		Pattern diagonal2 = new Pattern();
-		diagonal2.addRow(1, -1, -1, -1, -1);
-		diagonal2.addRow(-1, 1, -1, -1, -1);
-		diagonal2.addRow(-1, -1, 1, -1, -1);
-		diagonal2.addRow(-1, -1, -1, 1, -1);
-		diagonal2.addRow(-1, -1, -1, -1, 1);
+		Pattern diagonal2 = new Pattern(
+				"X????" + "\n" +
+				"?X???" + "\n" +
+				"??X??" + "\n" +
+				"???X?" + "\n" +
+				"????X" + "\n"
+		);
 
 		endPatterns.add(horizontal);
 		endPatterns.add(vertical);

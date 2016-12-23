@@ -1,4 +1,10 @@
+package game;
+
 import javax.annotation.Nonnull;
+
+import game.data.Coordinate;
+import game.data.FieldType;
+import player.Player;
 
 /**
  * @author Kolisek
@@ -14,6 +20,9 @@ public class Game
 
 	private boolean nextTurnPlayer1 = true;
 
+	private int numberOfSkippedTurnsP1 = 0;
+	private int numberOfSkippedTurnsP2 = 0;
+
 	public Game(@Nonnull final Player player1,
 				@Nonnull final Player player2)
 	{
@@ -28,36 +37,33 @@ public class Game
 
 		int moveCount = 0;
 
-		int boardSum = board.getBoardSum();
-
 		while(!referee.isGameEnded())
 		{
-			referee.setMoveCount(moveCount);
 
-			if (nextTurnPlayer1)
-			{
-				play(player1, FieldValue.P1);
-			}
-			else
-			{
-				play(player2, FieldValue.P2);
-			}
-
-			// when board was not changed, end the match
-			if (board.getBoardSum() == boardSum)
+			if (numberOfSkippedTurnsP1 > 3 || numberOfSkippedTurnsP2 > 3)
 			{
 				break;
 			}
 
-			boardSum = board.getBoardSum();
+			referee.setMoveCount(moveCount);
+
+			if (nextTurnPlayer1)
+			{
+				play(player1, FieldType.P1);
+			}
+			else
+			{
+				play(player2, FieldType.P2);
+			}
+
 			moveCount++;
 			nextTurnPlayer1 = !nextTurnPlayer1;
 		}
 
 		if (moveCount > 20)
 		{
-//			render();
-//			renderGame();
+			render();
+			renderGame();
 		}
 	}
 
@@ -84,11 +90,12 @@ public class Game
 		{
 			for (int x = 0; x < board.getSize(); x++)
 			{
-				switch (board.getBoard()[y][x])
+				Coordinate coordinate = new Coordinate(x, y);
+				switch (board.getType(coordinate))
 				{
-					case -2 : System.out.print("_"); break;
-					case 1 :  System.out.print("X"); break;
-					case 0 :  System.out.print("O"); break;
+					case EMPTY : System.out.print("_"); break;
+					case P1    : System.out.print("X"); break;
+					case P2    : System.out.print("O"); break;
 				}
 			}
 			System.out.println();
@@ -96,13 +103,31 @@ public class Game
 		System.out.println();
 	}
 
-	private void play(Player player, FieldValue value)
+	private void play(Player player, FieldType value)
 	{
 		Coordinate coordinate = player.nextTurn(board);
 
 		if (coordinate != null)
 		{
-			board.fill(coordinate, value);
+			board.setValue(coordinate, value);
+
+			if (player.equals(player1))
+			{
+				numberOfSkippedTurnsP1 = 0;
+			}
+
+			if (player.equals(player2))
+			{
+				numberOfSkippedTurnsP2 = 0;
+			}
+		}
+		else if (player.equals(player1))
+		{
+			numberOfSkippedTurnsP1++;
+		}
+		else if (player.equals(player2))
+		{
+			numberOfSkippedTurnsP2++;
 		}
 	}
 

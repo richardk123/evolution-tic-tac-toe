@@ -1,3 +1,8 @@
+import game.Board;
+import game.data.Coordinate;
+import game.data.FieldType;
+import game.Referee;
+import game.data.FieldValue;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -6,6 +11,22 @@ import org.junit.Test;
  */
 public class BoardTest
 {
+
+	@Test
+	public void coordinateTest()
+	{
+		Board board = new Board(5);
+
+		board.setValue(new Coordinate(0, 0), FieldType.P1);
+		board.setValue(new Coordinate(1, 0), FieldType.P1);
+		board.setValue(new Coordinate(2, 0), FieldType.P1);
+
+		FieldValue[][] val = board.getFieldValues(new Coordinate(0, 0), 3, 1);
+
+		Assert.assertTrue(val[0][0].getType().equals(FieldType.P1));
+		Assert.assertTrue(val[0][1].getType().equals(FieldType.P1));
+		Assert.assertTrue(val[0][2].getType().equals(FieldType.P1));
+	}
 
 	@Test
 	public void testGameEndVertical()
@@ -18,7 +39,7 @@ public class BoardTest
 
 		for (int i = 0; i < 5; i++)
 		{
-			board.fill(new Coordinate(0, i), FieldValue.P1);
+			board.setValue(new Coordinate(0, i), FieldType.P1);
 		}
 		Assert.assertTrue(referee.isGameEnded());
 	}
@@ -34,7 +55,7 @@ public class BoardTest
 
 		for (int i = 0; i < 5; i++)
 		{
-			board.fill(new Coordinate(i, 0), FieldValue.P1);
+			board.setValue(new Coordinate(i, 0), FieldType.P1);
 		}
 		Assert.assertTrue(referee.isGameEnded());
 	}
@@ -50,7 +71,7 @@ public class BoardTest
 
 		for (int i = 4; i >= 0; i--)
 		{
-			board.fill(new Coordinate(i, i), FieldValue.P1);
+			board.setValue(new Coordinate(i, i), FieldType.P1);
 		}
 		Assert.assertTrue(referee.isGameEnded());
 	}
@@ -66,7 +87,7 @@ public class BoardTest
 
 		for (int i = 0; i < 5; i++)
 		{
-			board.fill(new Coordinate(i, i), FieldValue.P1);
+			board.setValue(new Coordinate(i, i), FieldType.P1);
 		}
 		Assert.assertTrue(referee.isGameEnded());
 	}
@@ -79,7 +100,7 @@ public class BoardTest
 
 		for (int i = 16; i < 20; i++)
 		{
-			board.fill(new Coordinate(i, 0), FieldValue.P1);
+			board.setValue(new Coordinate(i, 0), FieldType.P1);
 		}
 
 		Assert.assertFalse(referee.isGameEnded());

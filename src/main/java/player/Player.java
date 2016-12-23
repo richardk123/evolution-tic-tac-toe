@@ -1,5 +1,10 @@
+package player;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import game.Board;
+import game.data.Coordinate;
 
 /**
  * @author Kolisek

@@ -1,3 +1,5 @@
+package player;
+
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,13 +8,19 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+import game.Board;
+import game.data.Coordinate;
+import game.data.FieldType;
+import game.Pattern;
+import util.EvolutionUtils;
+
 /**
  * @author Kolisek
  */
 public class EvolutionPlayer implements Player
 {
 	private final String name;
-	private EvolutionUtils evolutionUtils = new EvolutionUtils();
+	private EvolutionUtils evolutionUtils = EvolutionUtils.getInstance();
 
 	private Boolean isEmpty;
 	private List<Gene> genes = new ArrayList<>();
@@ -60,14 +68,18 @@ public class EvolutionPlayer implements Player
 
 				for (Coordinate coordinate : coordinates)
 				{
+					Coordinate alteredCoordinate = new Coordinate(
+							coordinate.getX() + gene.getRelativeX(),
+							coordinate.getY() + gene.getRelativeY());
+
 					int priority = gene.getPriority();
 
-					if (coordinatePriority.containsKey(coordinate))
+					if (coordinatePriority.containsKey(alteredCoordinate))
 					{
-						priority = coordinatePriority.get(coordinate) + gene.getPriority();
+						priority = coordinatePriority.get(alteredCoordinate) + gene.getPriority();
 					}
 
-					coordinatePriority.put(coordinate, priority);
+					coordinatePriority.put(alteredCoordinate, priority);
 				}
 			}
 
@@ -153,38 +165,42 @@ public class EvolutionPlayer implements Player
 				}
 			}
 
-			this.pattern = new Pattern();
-
-			Coordinate coordinates = generatePattern(pattern, actualGeneSizeX, actualGeneSizeY);
+			this.pattern = generatePattern(actualGeneSizeX, actualGeneSizeY);
+			Coordinate coordinates = findCoordinateToPlaceValue(pattern);
 			this.relativeX = coordinates.getX();
 			this.relativeY = coordinates.getY();
 			this.priority = new Random().nextInt(evolutionUtils.getNewGeneMaxPriority());
 		}
 
-		private Coordinate generatePattern(Pattern pattern, int actualGeneSizeX, int actualGeneSizeY)
+		private Pattern generatePattern(int actualGeneSizeX, int actualGeneSizeY)
 		{
+			String data = "";
+
 			for (int y = 0; y < actualGeneSizeY; y ++)
 			{
-				List<Integer> rowData = new ArrayList<>();
-
 				for (int x = 0; x < actualGeneSizeX; x ++)
 				{
-					rowData.add(evolutionUtils.chooseRandomFromArray(
-							FieldValue.EMPTY.getValue(),
-							FieldValue.P1.getValue(),
-							FieldValue.P2.getValue()));
+					data += evolutionUtils.chooseRandomFromArray(
+									FieldType.EMPTY.getValue(),
+									FieldType.P1.getValue(),
+									FieldType.P2.getValue());
 				}
-				pattern.addRow(rowData);
+				data += FieldType.ROW_SEPARATOR.getValue();
 			}
 
-			List<Coordinate> coordinates = pattern.getCoordinatesOf(FieldValue.EMPTY.getValue());
+			Pattern pattern = new Pattern(data);
 
-			// do not have empty field to place value
-			if (coordinates.isEmpty())
+			if (pattern.getCoordinatesOf(FieldType.EMPTY).isEmpty())
 			{
-				return generatePattern(pattern, actualGeneSizeX, actualGeneSizeY);
+				return generatePattern(actualGeneSizeX, actualGeneSizeY);
 			}
 
+			return pattern;
+		}
+
+		private Coordinate findCoordinateToPlaceValue(Pattern pattern)
+		{
+			List<Coordinate> coordinates = pattern.getCoordinatesOf(FieldType.EMPTY);
 			int random = new Random().nextInt(coordinates.size());
 			return coordinates.get(random);
 		}
@@ -211,22 +227,19 @@ public class EvolutionPlayer implements Player
 
 		public Gene mutate()
 		{
-			Pattern newPattern = pattern.clone();
+			StringBuilder newPatternData = new StringBuilder(pattern.getData());
 
-			for (int i = 0; i < newPattern.getData().size(); i++)
+			for (int i = 0; i < newPatternData.length(); i++)
 			{
-				List<Integer> row = newPattern.getData().get(i);
-
-				for (int j = 0; j < row.size(); j++)
+				// chance to change gene
+				if (evolutionUtils.isChangeAllowed(evolutionUtils.getChangeChangeGenePattern()))
 				{
-					// chance to change gene
-					if (evolutionUtils.isChangeAllowed(evolutionUtils.getChangeChangeGenePattern()))
-					{
-						row.set(j, evolutionUtils.chooseRandomFromArray(
-								FieldValue.EMPTY.getValue(),
-								FieldValue.P1.getValue(),
-								FieldValue.P2.getValue()));
-					}
+					char val = evolutionUtils.chooseRandomFromArray(
+							FieldType.EMPTY.getValue(),
+							FieldType.P1.getValue(),
+							FieldType.P2.getValue()).charAt(0);
+
+					newPatternData.setCharAt(i, val);
 				}
 			}
 
@@ -239,7 +252,9 @@ public class EvolutionPlayer implements Player
 						newPriority + evolutionUtils.getGenePriorityMaxStep();
 			}
 
-			return new Gene(newPattern, this.getRelativeX(), this.getRelativeY(), newPriority);
+			Pattern pattern = new Pattern(newPatternData.toString());
+
+			return new Gene(pattern, getRelativeX(), getRelativeY(), newPriority);
 		}
 
 	}

@@ -8,6 +8,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import game.Game;
+import player.EvolutionPlayer;
+
 /**
  * @author Kolisek
  */

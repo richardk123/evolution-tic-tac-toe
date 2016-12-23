@@ -1,3 +1,5 @@
+package util;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -8,20 +10,26 @@ import java.util.Random;
  */
 public class EvolutionUtils
 {
-	private Properties properties;
+	private static final Properties properties = new Properties();
+	private static final EvolutionUtils instance = new EvolutionUtils();
 
-	public EvolutionUtils()
+	protected EvolutionUtils()
 	{
-		InputStream is = getClass().getResourceAsStream("evolution.properties");
-		properties = new Properties();
+
 		try
 		{
+			InputStream is = getClass().getClassLoader().getResourceAsStream("evolution.properties");
 			properties.load(is);
 		}
 		catch (IOException e)
 		{
 			throw new RuntimeException("cannot load properties");
 		}
+	}
+
+	public static EvolutionUtils getInstance()
+	{
+		return instance;
 	}
 
 	public int getNewPlayerGeneCount()
@@ -69,7 +77,8 @@ public class EvolutionUtils
 		return new Random().nextInt(100) <= percentage;
 	}
 
-	public <T> T chooseRandomFromArray(T... array)
+	@SafeVarargs
+	public final <T> T chooseRandomFromArray(T... array)
 	{
 		return array[new Random().nextInt(array.length)];
 	}
